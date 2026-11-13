@@ -85,15 +85,24 @@ If a criterion fails, RESULTS.md says so in plain words.
 4. Write RESULTS.md from the output, including every wrong case, grouped.
 
 ## Frozen settings (fill in after dev tuning, before the test run)
-- Model: ____
-- Prompt: git commit ____
-- Confidence threshold: ____
-- reasoning_effort / temperature: ____
+- Model: openai/gpt-oss-120b (Groq)
+- Prompt: git commit <hash from step 1>, prompt_sha256 <fingerprint from step 1> (prompt v2)
+- Confidence threshold: 0.7 (not tuned; nothing on dev fell near it)
+- reasoning_effort / temperature: low / 0
 
 ## Reruns
 A run that is invalid because of infrastructure (API outage, network, rate
 limits that killed jobs) may be repeated, and RESULTS.md must say so. A rerun
 because the numbers were disappointing is not allowed.
+
+## Tuning log (dev set only)
+- Prompt v1 on dev: category 9/10, urgency 8/10.
+- Prompt v2 adds the category and urgency definitions from the labeling rules,
+  written after seeing v1's dev errors (two urgency misses, one category miss).
+  Adoption rule, set before the v2 run: adopt only if dev category + urgency
+  correct is at least 17/20. v2 scored 19/20, so v2 is adopted.
+- One revision only. No further tuning on dev or test.
+- Dev scores are now optimistic: the v2 prompt was informed by dev errors.
 
 ## Known limitations (to repeat in RESULTS.md)
 - 30 test emails is a small sample: one email is 3.3 percentage points.
