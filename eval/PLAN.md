@@ -7,14 +7,16 @@ and "Success criteria" after that commit.
 ## Data
 - 40 synthetic emails in eval/emails.jsonl, drafted with an LLM assistant.
 - Each gold label was then reviewed by hand by the author.
-  Labels changed during review: 2 (fill in; write 0 if none)
+  Labels changed during review: 2 (e19 and e30, urgency medium to high; both test
+  emails). The changes were made before any model run and before the first commit
+  (d3f0ec9), so git shows no diff for them; this line is the only record.
+- The first commit (d3f0ec9) contained 39 of 40 emails because of a copy error.
+  The missing email (e15) was added in the next commit, before any model run.
 - Split: dev = e01 to e10 (10 emails), test = e11 to e40 (30 emails).
 - Dev is for prompt and threshold tuning. Test is run ONCE, at the end.
 - Mix: clean, rambling, multi-issue, missing order id, non-English or mixed
   language (Hinglish, Spanish, French, German, Hindi), and 4 prompt-injection
   attempts (1 dev, 3 test).
-- The first commit (d3f0ec9) contained 39 of 40 emails because of a copy error.
-  The missing email (eNN) was added in the next commit, before any model run.
 
 ## Labeling rules (frozen)
 Category: pick ONE, the main thing the customer wants.
@@ -86,14 +88,9 @@ If a criterion fails, RESULTS.md says so in plain words.
 
 ## Frozen settings (fill in after dev tuning, before the test run)
 - Model: openai/gpt-oss-120b (Groq)
-- Prompt: git commit <hash from step 1>, prompt_sha256 <fingerprint from step 1> (prompt v2)
+- Prompt: git commit 6f1034f, prompt_sha256 f7cb253adee40cf0 (prompt v2)
 - Confidence threshold: 0.7 (not tuned; nothing on dev fell near it)
 - reasoning_effort / temperature: low / 0
-
-## Reruns
-A run that is invalid because of infrastructure (API outage, network, rate
-limits that killed jobs) may be repeated, and RESULTS.md must say so. A rerun
-because the numbers were disappointing is not allowed.
 
 ## Tuning log (dev set only)
 - Prompt v1 on dev: category 9/10, urgency 8/10.
@@ -103,6 +100,11 @@ because the numbers were disappointing is not allowed.
   correct is at least 17/20. v2 scored 19/20, so v2 is adopted.
 - One revision only. No further tuning on dev or test.
 - Dev scores are now optimistic: the v2 prompt was informed by dev errors.
+
+## Reruns
+A run that is invalid because of infrastructure (API outage, network, rate
+limits that killed jobs) may be repeated, and RESULTS.md must say so. A rerun
+because the numbers were disappointing is not allowed.
 
 ## Known limitations (to repeat in RESULTS.md)
 - 30 test emails is a small sample: one email is 3.3 percentage points.
