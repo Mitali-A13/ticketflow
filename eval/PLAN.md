@@ -1,6 +1,6 @@
 # TicketFlow evaluation plan (pre-registered)
 
-Written Nov 12, 2026, before any evaluation run. This file is committed to git
+Drafted Nov 13, 2026 (first commit d3f0ec9), before any evaluation run. This file is committed to git
 before the test set is run. Do not edit the sections "Labeling rules", "Metrics"
 and "Success criteria" after that commit.
 
@@ -100,6 +100,7 @@ If a criterion fails, RESULTS.md says so in plain words.
   correct is at least 17/20. v2 scored 19/20, so v2 is adopted.
 - One revision only. No further tuning on dev or test.
 - Dev scores are now optimistic: the v2 prompt was informed by dev errors.
+- The adoption rule was agreed in the author's conversation with the AI assistant before the v2 run; git first records it in commit 050dc54, after the run, so the timing rests on the author's account.
 
 ## Reruns
 A run that is invalid because of infrastructure (API outage, network, rate
