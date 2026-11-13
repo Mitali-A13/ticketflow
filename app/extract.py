@@ -34,7 +34,29 @@ exactly these keys:
   urgency. Use a lower number when the email is vague, mixes several issues or is
   hard to understand.
 
-Use null for any value that is not in the email."""
+Use null for any value that is not in the email.
+
+CATEGORY: choose the ONE main thing the customer wants.
+- refund: the customer explicitly asks for money back or to return an item. This
+  beats every other category.
+- billing: charges, invoices, prices, coupons or payment amounts, when no refund
+  or return is asked for.
+- shipping: delivery, tracking, address changes, and damaged, missing or wrong
+  items, when no refund or return is asked for.
+- technical: the app, the website or a product is not working.
+- account: login, password, profile, subscription or account deletion.
+- other: feedback, compliments, general questions, press enquiries, or anything
+  where the customer asks the support team to do nothing. Use "other" only when
+  the email truly fits none of the categories above.
+- If the email has several issues, choose the one the customer says matters most.
+  If they do not say, choose the first one mentioned.
+
+URGENCY:
+- high: only when the customer states a deadline within about 2 days, says
+  urgent, today or asap, or the situation is clearly time-critical.
+- low: feedback, compliments or a general question where nothing is broken.
+- medium: every other problem or request, including late or missing deliveries
+  with no stated deadline. A long wait alone does not make it high."""
 
 
 def build_messages(email: dict) -> tuple[str, str]:
