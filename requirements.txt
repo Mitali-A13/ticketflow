@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+pydantic>=2.12
+httpx
+python-dotenv
+jinja2
+python-multipart
+pytest
