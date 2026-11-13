@@ -25,6 +25,8 @@
 {"id":"e13","split":"test","tags":["clean"],"sender":"c13@example.com","subject":"Refund not received","body":"Please refund order ORD-45019. I cancelled it within an hour of ordering, as your policy allows, but the money has not come back to my account after 9 days. Thanks, Fatima Sheikh","gold":{"category":"refund","urgency":"medium","customer_name":"Fatima Sheikh","order_id":"ORD-45019"}}
 
 {"id":"e14","split":"test","tags":["no_order_id"],"sender":"c14@example.com","subject":"Checkout page freezes","body":"The checkout page freezes on a blank screen when I press Place Order. I tried Chrome and Safari on two laptops. Is the site down? Ishaan Gupta","gold":{"category":"technical","urgency":"medium","customer_name":"Ishaan Gupta","order_id":null}}
+
+{"id":"e15","split":"test","tags":["no_order_id"],"sender":"c15@example.com","subject":"Account locked","body":"I cannot log in. It says my account is locked after too many attempts. Please unlock it, I need to download my invoices this month. Sunita Pillai","gold":{"category":"account","urgency":"medium","customer_name":"Sunita Pillai","order_id":null}}
     
 {"id":"e16","split":"test","tags":["no_order_id"],"sender":"c16@example.com","subject":"Physical store?","body":"Do you have a physical store in Pune? I would like to see the product before buying. Thanks, Arjun","gold":{"category":"other","urgency":"low","customer_name":"Arjun","order_id":null}}
 

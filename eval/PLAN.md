@@ -13,6 +13,8 @@ and "Success criteria" after that commit.
 - Mix: clean, rambling, multi-issue, missing order id, non-English or mixed
   language (Hinglish, Spanish, French, German, Hindi), and 4 prompt-injection
   attempts (1 dev, 3 test).
+- The first commit (d3f0ec9) contained 39 of 40 emails because of a copy error.
+  The missing email (eNN) was added in the next commit, before any model run.
 
 ## Labeling rules (frozen)
 Category: pick ONE, the main thing the customer wants.
