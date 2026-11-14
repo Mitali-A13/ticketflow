@@ -1,0 +1,26 @@
+{
+  "when_utc": "2026-11-14T15:19:24+00:00",
+  "machine": "macOS-26.5-arm64-arm-64bit-Mach-O",
+  "python": "3.14.3",
+  "target": "http://localhost:8000",
+  "requests_sent": 200,
+  "concurrency": 20,
+  "accepted_202": 200,
+  "other_results": {},
+  "enqueue_seconds": 1.849,
+  "enqueue_requests_per_s": 108.2,
+  "enqueue_latency_ms": {
+    "min": 9.6,
+    "median": 36.9,
+    "p95": 679.8,
+    "max": 1643.7
+  },
+  "drain_completed": true,
+  "total_seconds": 2.749,
+  "jobs_per_s_end_to_end": 72.7,
+  "final_states": {
+    "succeeded": 200,
+    "needs_review": 0,
+    "dead": 0
+  }
+}

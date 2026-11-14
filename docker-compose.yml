@@ -1,0 +1,40 @@
+# Two processes from one image: the API and the worker.
+# They share one SQLite file on a named volume.
+services:
+  api:
+    build: .
+    image: ticketflow:local
+    ports:
+      - "8000:8000"
+    env_file: .env
+    environment:
+      TICKETFLOW_DB: /data/ticketflow.db
+      FAKE_LLM: ${FAKE_LLM:-false}
+      RATE_LIMIT_PER_MIN: ${RATE_LIMIT_PER_MIN:-60}
+    volumes:
+      - ticketflow-data:/data
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  worker:
+    build: .
+    image: ticketflow:local
+    command: ["python", "-m", "app.worker"]
+    env_file: .env
+    environment:
+      TICKETFLOW_DB: /data/ticketflow.db
+      FAKE_LLM: ${FAKE_LLM:-false}
+    volumes:
+      - ticketflow-data:/data
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  ticketflow-data:

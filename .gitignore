@@ -5,3 +5,4 @@ __pycache__/
 *.db-shm
 .env
 .DS_Store
+docs/load_test_last.json
