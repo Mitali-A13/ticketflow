@@ -4,6 +4,17 @@
 
 TicketFlow converts unstructured customer support emails into structured, validated information using an LLM. It processes emails asynchronously, automatically handles reliable results, and sends uncertain cases to a human review queue.
 
+## Screenshots
+
+### Dashboard
+![TicketFlow Dashboard](docs/screenshots/overview.png)
+
+### Job Details
+![TicketFlow Job Details](docs/screenshots/job-details.png)
+
+### Human Review Queue
+![TicketFlow Human Review Queue](docs/screenshots/review-queue.png)
+
 ## Features
 
 - **Email processing:** Extracts customer name, order ID, category, urgency, summary and suggested reply from customer emails.
