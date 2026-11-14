@@ -29,8 +29,15 @@ Dev set: 10 emails, used only to choose between two prompts.
 - dc27d93: added the missing email (e15) and the label-review disclosure.
 - d3421a4: evaluation tooling (scoring, baseline, runner), before any model run.
 - dd9dc69: dev run with prompt v1 (category 9/10, urgency 8/10).
-- 6f1034f: under an adoption rule agreed before the run (at least 17/20, the v1 score; git records the rule only from 050dc54).
+- 6f1034f: prompt v2 adopted (dev category 10/10, urgency 9/10), under an adoption rule agreed before the run (at least 17/20, the v1 score; git records the rule only from 050dc54).
 - 050dc54: settings frozen in PLAN.md. The test run used this commit.
+- 9b37b52: recorded the final test run (raw JSON) and this file.
+- 70fc6d7: PLAN.md disclosure of the label changes.
+
+PLAN.md was edited after the test run, in disclosure text only: the date in its
+header, the Data section and the tuning log. Its Labeling rules, Metrics and
+Success criteria sections are identical in commits dc27d93, 050dc54 and the latest
+commit (checked by hashing those sections).
 
 ## Pre-registered success criteria
 | Criterion | Result |
@@ -94,8 +101,9 @@ routing helps for category.
 
 ## Limitations
 - 30 test emails is a small sample: one email is 3.3 points. A result of 30/30
-  is consistent with a true accuracy as low as about 88% (95% lower bound, my
-  calculation), and even that assumes a random sample of real emails.
+  is consistent with a true accuracy as low as about 88% (exact two-sided 95%
+  lower bound for 30 of 30: 0.025^(1/30) = 88.4%), and even that assumes a random
+  sample of real emails.
 - The emails are synthetic: shorter, cleaner and more regular than real support
   mail. Only 5 of the 30 test emails are non-English.
 - Labels were drafted by an LLM assistant and reviewed by one person. The labeling
