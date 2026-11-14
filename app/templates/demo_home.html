@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}New email{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>New email</h1>
+    <p class="sub">Paste a customer email. A background worker classifies it, and the next page follows it from queue to result.</p>
+  </div>
+</div>
+
+{% if error %}<div class="notice error" role="alert">{{ error }}</div>{% endif %}
+
+<div class="detail">
+  <form class="panel" method="post" action="/demo/submit">
+    <div class="panel-body">
+      <input type="hidden" name="form_id" value="{{ form.form_id }}">
+      <label class="field"><span>From</span>
+        <input type="text" name="sender" value="{{ form.sender }}" placeholder="customer@example.com" required>
+      </label>
+      <label class="field"><span>Subject</span>
+        <input type="text" name="subject" value="{{ form.subject }}">
+      </label>
+      <label class="field"><span>Message</span>
+        <textarea name="body" rows="10" required>{{ form.body }}</textarea>
+      </label>
+      <div class="actions"><button class="btn primary" type="submit">Add to queue</button></div>
+      <p class="help">Each form has its own id, so submitting the same form twice creates one job.</p>
+    </div>
+  </form>
+
+  <aside class="panel">
+    <div class="panel-head"><h2>Start from a sample</h2></div>
+    <ul class="samples">
+      {% for s in samples %}
+      <li><a href="/demo?sample={{ loop.index }}">{{ s.label }}</a><span class="muted">{{ s.hint }}</span></li>
+      {% endfor %}
+    </ul>
+  </aside>
+</div>
+{% endblock %}

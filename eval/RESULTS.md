@@ -30,7 +30,6 @@ Dev set: 10 emails, used only to choose between two prompts.
 - d3421a4: evaluation tooling (scoring, baseline, runner), before any model run.
 - dd9dc69: dev run with prompt v1 (category 9/10, urgency 8/10).
 - 6f1034f: under an adoption rule agreed before the run (at least 17/20, the v1 score; git records the rule only from 050dc54).
-  rule written before the run (at least 17/20, the v1 score).
 - 050dc54: settings frozen in PLAN.md. The test run used this commit.
 
 ## Pre-registered success criteria

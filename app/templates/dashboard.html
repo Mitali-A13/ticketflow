@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Overview{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <h1>Overview</h1>
+    <p class="sub">An AI model classifies each email. Results it is unsure about wait for a person to check them.</p>
+  </div>
+  <a class="btn primary" href="/demo">Add an email</a>
+</div>
+
+<div id="live" data-live="{{ 'on' if live else 'off' }}" data-interval="4000">
+  <nav class="strip" aria-label="Filter by state">
+    {% for s in strip %}
+    <a class="strip-item" href="/dashboard?view={{ s.view }}"{% if s.view == view %} aria-current="page"{% endif %}>
+      <span class="strip-n">{{ s.n }}</span>
+      <span class="strip-l">{{ s.label }}</span>
+    </a>
+    {% endfor %}
+  </nav>
+
+  <div class="table-bar">
+    <span>{{ view_title }}</span>
+    {% if view != "all" %}<a href="/dashboard">Show all emails</a>{% endif %}
+  </div>
+
+  {% if not jobs %}
+  <div class="empty">
+    {% if view == "all" %}
+      <p><strong>No emails yet.</strong></p>
+      <p class="muted">Add one to watch it move through the queue.</p>
+      <a class="btn primary" href="/demo">Add an email</a>
+    {% else %}
+      <p><strong>Nothing here right now.</strong></p>
+      <p class="muted"><a href="/dashboard">Show all emails</a></p>
+    {% endif %}
+  </div>
+  {% else %}
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>Job</th><th>Email</th><th>Category</th><th>Urgency</th><th>Confidence</th><th>Status</th><th>Received</th></tr>
+      </thead>
+      <tbody>
+      {% for j in jobs %}
+        <tr>
+          <td class="num">{{ j.id }}</td>
+          <td>
+            <a class="subject" href="/demo/jobs/{{ j.id }}">{{ j.subject or "(no subject)" }}</a>
+            <span class="from">{{ j.sender }}</span>
+          </td>
+          <td>{{ j.category or "–" }}</td>
+          <td>{% if j.urgency %}<span class="urgency-{{ j.urgency }}">{{ j.urgency }}</span>{% else %}–{% endif %}</td>
+          <td class="num">{% if j.confidence is not none %}{{ "%.2f"|format(j.confidence) }}{% else %}–{% endif %}</td>
+          <td>{{ badge(j.label, j.css) }}{% if j.attempts > 1 %} <span class="muted">{{ j.attempts }} tries</span>{% endif %}</td>
+          <td class="num"><time data-epoch="{{ j.created_at }}">{{ j.created_at|utc }}</time></td>
+        </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

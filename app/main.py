@@ -1,10 +1,9 @@
-"""FastAPI app: ingest, job status, ops endpoints, human-review screen."""
+"""FastAPI app: ingest, job status, ops endpoints, browser pages."""
 
 import logging
 import os
 import time
 from contextlib import asynccontextmanager
-from pathlib import Path
 from typing import Annotated, Literal, get_args
 
 from dotenv import load_dotenv
@@ -19,11 +18,12 @@ from fastapi import (
     Response,
 )
 from fastapi.responses import RedirectResponse
-from fastapi.templating import Jinja2Templates
+from fastapi.staticfiles import StaticFiles
 from pydantic import ValidationError
 
 from app.auth import COOKIE_NAME, LoginRequired, api_auth, browser_auth, valid_key
 from app.db import connect, init_db
+from app.demo import router as demo_router
 from app.logs import setup_logging
 from app.models import (
     Category,
@@ -39,9 +39,9 @@ from app.ops import get_metrics, list_jobs, retry_job
 from app.queue import enqueue_email, get_job, get_result
 from app.ratelimit import RateLimiter
 from app.reviews import EDITABLE, get_result_by_id, pending_reviews, save_review
+from app.ui import BASE, render, templates
 
 log = logging.getLogger("api")
-templates = Jinja2Templates(directory=str(Path(__file__).parent / "templates"))
 
 JobStatus = Literal["queued", "running", "succeeded", "needs_review", "dead"]
 
@@ -62,6 +62,8 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(title="TicketFlow", lifespan=lifespan)
+app.mount("/static", StaticFiles(directory=str(BASE / "static")), name="static")
+app.include_router(demo_router)
 
 
 @app.middleware("http")
@@ -164,8 +166,8 @@ def metrics(conn=Depends(get_conn)):
     return get_metrics(conn)
 
 
-# ----------------------------------------------- review screen (header or cookie)
-# The login routes are declared BEFORE /review/{result_id} so "login" is never
+# ----------------------------------------------- login, logout, review screen
+# The login route is declared BEFORE /review/{result_id} so "login" is never
 # mistaken for a result id.
 @app.get("/review/login")
 def login_page(request: Request):
@@ -176,9 +178,12 @@ def login_page(request: Request):
 def login_submit(request: Request, key: Annotated[str, Form()] = ""):
     if not valid_key(key):
         return templates.TemplateResponse(
-            request, "login.html", {"error": "Wrong key."}, status_code=401
+            request,
+            "login.html",
+            {"error": "That key was not accepted."},
+            status_code=401,
         )
-    resp = RedirectResponse("/review", status_code=303)
+    resp = RedirectResponse("/dashboard", status_code=303)
     resp.set_cookie(
         COOKIE_NAME,
         key,
@@ -190,13 +195,21 @@ def login_submit(request: Request, key: Annotated[str, Form()] = ""):
     return resp
 
 
+@app.post("/logout")
+def logout():
+    resp = RedirectResponse("/review/login", status_code=303)
+    resp.delete_cookie(COOKIE_NAME)
+    return resp
+
+
 def _review_page(
     request: Request, conn, error: str | None = None, status_code: int = 200
 ):
-    return templates.TemplateResponse(
+    return render(
         request,
         "review.html",
         {
+            "active": "review",
             "items": pending_reviews(conn),
             "error": error,
             "categories": get_args(Category),

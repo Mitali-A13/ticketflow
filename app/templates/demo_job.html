@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% from "_macros.html" import badge %}
+{% block title %}Job {{ job.id }}{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <p class="crumb"><a href="/dashboard">Overview</a> / Job {{ job.id }}</p>
+    <h1>{{ email.subject or "(no subject)" }}</h1>
+    <p class="sub">From {{ email.sender }}, received <time data-epoch="{{ job.created_at }}">{{ job.created_at|utc }}</time></p>
+  </div>
+  <div>{{ badge(status_label, status_css) }}</div>
+</div>
+
+<div id="live" data-live="{{ 'on' if live else 'off' }}" data-interval="3000">
+  <ol class="steps" aria-label="Progress">
+    {% for s in steps %}
+    <li class="step {{ s.state }}"{% if s.state == "current" %} aria-current="step"{% endif %}>
+      <span class="step-label">{{ s.label }} <span class="sr">({{ s.sr }})</span></span>
+      <span class="step-note">{{ s.note }}</span>
+    </li>
+    {% endfor %}
+  </ol>
+
+  {% if job.status == "queued" and job.attempts == 0 and waiting_for_worker %}
+    <div class="notice warn" role="status"><p>Nothing has picked this job up yet. Start the worker with <code>python -m app.worker</code>.</p></div>
+  {% elif job.status == "queued" and job.attempts > 0 %}
+    <div class="notice warn" role="status">
+      <p>Attempt {{ job.attempts }} failed: <code>{{ job.last_error }}</code></p>
+      <p>The worker retries automatically, waiting longer after each failure.</p>
+    </div>
+  {% elif job.status == "needs_review" and not review %}
+    <div class="notice warn">
+      <p><strong>Needs human review.</strong>{% if reasons %} Flagged because: {{ reasons|join("; ") }}.{% endif %}</p>
+      <p><a href="/review">Open the review queue</a></p>
+    </div>
+  {% elif review %}
+    <div class="notice">
+      <p><strong>Reviewed by a human: {{ review.reviewer_action }}</strong></p>
+      {% if corrected %}
+      <p>Fields the reviewer changed:</p>
+      <ul>
+        {% for field, new_value in corrected.items() %}
+        <li>{{ field }}: {{ result[field] if result[field] is not none else "(empty)" }} changed to {{ new_value if new_value is not none else "(empty)" }}</li>
+        {% endfor %}
+      </ul>
+      {% endif %}
+    </div>
+  {% elif job.status == "dead" %}
+    <div class="notice error">
+      <p>Failed after {{ job.attempts }} attempt{{ "" if job.attempts == 1 else "s" }}: <code>{{ job.last_error }}</code></p>
+      <form method="post" action="/demo/jobs/{{ job.id }}/retry"><button class="btn" type="submit">Retry this job</button></form>
+    </div>
+  {% elif job.status == "succeeded" %}
+    <div class="notice"><p>Auto-accepted. No human review was needed.</p></div>
+  {% endif %}
+
+  <div class="detail">
+    <section class="panel">
+      <div class="panel-head"><h2>AI result</h2></div>
+      <div class="panel-body">
+        {% if result %}
+        <dl class="facts">
+          <dt>Category</dt><dd>{{ result.category }}</dd>
+          <dt>Urgency</dt><dd><span class="urgency-{{ result.urgency }}">{{ result.urgency }}</span></dd>
+          <dt>Customer</dt><dd>{{ result.customer_name or "Not found in the email" }}</dd>
+          <dt>Order id</dt><dd>{% if result.order_id %}<span class="mono">{{ result.order_id }}</span>{% else %}Not found in the email{% endif %}</dd>
+          <dt>Confidence</dt>
+          <dd>
+            {{ "%.2f"|format(result.confidence) }}
+            <div class="meter" role="img" aria-label="Confidence {{ '%.2f'|format(result.confidence) }}. Results below {{ '%.2f'|format(threshold) }} go to review.">
+              <span class="fill{% if result.confidence < threshold %} low{% endif %}" style="width: {{ (result.confidence * 100)|round|int }}%"></span>
+              <span class="mark" style="left: {{ (threshold * 100)|round|int }}%"></span>
+            </div>
+            <span class="help">The mark is the review threshold, {{ "%.2f"|format(threshold) }}.</span>
+          </dd>
+          <dt>Summary</dt><dd>{{ result.summary }}</dd>
+          <dt>Draft reply</dt>
+          <dd>
+            <p class="draft">{{ result.suggested_reply }}</p>
+            <p class="help">Nothing is sent automatically.</p>
+          </dd>
+        </dl>
+        <p class="help">Model {{ result.model }}, {{ result.latency_ms }} ms.</p>
+        {% else %}
+        <p class="muted">The result appears here when processing finishes.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head"><h2>Original email</h2></div>
+      <div class="panel-body"><pre class="email">{{ email.body }}</pre></div>
+    </section>
+  </div>
+</div>
+{% endblock %}
