@@ -6,6 +6,7 @@ FAKE_LLM=true python -m app.worker   (no API key needed)
 import logging
 import random
 import sys
+import threading
 import time
 
 from dotenv import load_dotenv
@@ -79,35 +80,46 @@ def process_one(
     return status
 
 
-def run_forever(poll_interval: float = 1.0) -> None:
+def run_forever(
+    poll_interval: float = 1.0, stop: threading.Event | None = None
+) -> int | None:
+    """Run the worker loop. Returns 1 if it cannot start. Pass an Event to stop it."""
     load_dotenv()  # reads .env; real environment variables win over .env
     setup_logging()
     try:
         llm = get_llm()
     except FatalError as e:
         log.error("cannot start: %s", e)
-        sys.exit(1)
+        return 1
     processor = make_processor(llm)
     conn = connect()
     init_db(conn)
     log.info("worker started", extra={"llm": getattr(llm, "model", "?")})
+
+    def pause() -> None:
+        if stop is not None:
+            stop.wait(poll_interval)
+        else:
+            time.sleep(poll_interval)
+
     try:
-        while True:
+        while stop is None or not stop.is_set():
             try:
                 outcome = process_one(conn, processor=processor)
             except Exception:
                 # e.g. a database error. The job's lock will expire and it will
                 # be reclaimed (the crash-safety path from Day 1).
                 log.exception("worker loop error")
-                time.sleep(poll_interval)
+                pause()
                 continue
             if outcome is None:
-                time.sleep(poll_interval)  # idle: wait, then poll again
+                pause()  # idle: wait, then poll again
     except KeyboardInterrupt:
         log.info("worker stopped")
     finally:
         conn.close()
+    return None
 
 
 if __name__ == "__main__":
-    run_forever()
+    sys.exit(run_forever() or 0)

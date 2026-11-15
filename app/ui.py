@@ -7,6 +7,7 @@ from fastapi import Request
 from fastapi.templating import Jinja2Templates
 
 from app.db import connect
+from app.llm import env_true
 from app.ops import get_metrics
 
 BASE = Path(__file__).parent
@@ -34,7 +35,8 @@ def pending_count() -> int:
 def render(
     request: Request, name: str, context: dict | None = None, status_code: int = 200
 ):
-    """Render a page that has the sidebar. Adds the review-queue count to every page."""
+    """Render a page that has the sidebar. Adds the review-queue count and demo flag."""
     ctx = dict(context or {})
     ctx.setdefault("nav_pending", pending_count())
+    ctx.setdefault("demo_mode", env_true("FAKE_LLM"))
     return templates.TemplateResponse(request, name, ctx, status_code=status_code)

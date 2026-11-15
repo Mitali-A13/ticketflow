@@ -24,6 +24,8 @@ from pydantic import ValidationError
 from app.auth import COOKIE_NAME, LoginRequired, api_auth, browser_auth, valid_key
 from app.db import connect, init_db
 from app.demo import router as demo_router
+from app.deploy import demo_key_hint, seed_demo_data, start_embedded_worker
+from app.llm import env_true
 from app.logs import setup_logging
 from app.models import (
     Category,
@@ -57,8 +59,14 @@ async def lifespan(app: FastAPI):
     )
     conn = connect()
     init_db(conn)
+    if env_true("SEED_DEMO"):
+        log.info("demo emails seeded", extra={"seeded": seed_demo_data(conn)})
     conn.close()
+    # EMBEDDED_WORKER=true runs the worker inside this process (single-container hosting).
+    stop = start_embedded_worker() if env_true("EMBEDDED_WORKER") else None
     yield
+    if stop is not None:
+        stop.set()
 
 
 app = FastAPI(title="TicketFlow", lifespan=lifespan)
@@ -171,7 +179,9 @@ def metrics(conn=Depends(get_conn)):
 # mistaken for a result id.
 @app.get("/review/login")
 def login_page(request: Request):
-    return templates.TemplateResponse(request, "login.html", {"error": None})
+    return templates.TemplateResponse(
+        request, "login.html", {"error": None, "demo_key": demo_key_hint()}
+    )
 
 
 @app.post("/review/login")
@@ -180,7 +190,7 @@ def login_submit(request: Request, key: Annotated[str, Form()] = ""):
         return templates.TemplateResponse(
             request,
             "login.html",
-            {"error": "That key was not accepted."},
+            {"error": "That key was not accepted.", "demo_key": demo_key_hint()},
             status_code=401,
         )
     resp = RedirectResponse("/dashboard", status_code=303)

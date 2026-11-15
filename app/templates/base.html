@@ -17,6 +17,9 @@
       <a href="/demo"{% if active == "new" %} aria-current="page"{% endif %}>New email</a>
       <a href="/review"{% if active == "review" %} aria-current="page"{% endif %}>Review queue{% if nav_pending %}<span class="count">{{ nav_pending }}</span>{% endif %}</a>
     </nav>
+    {% if demo_mode %}
+    <p class="demo-note">Demo mode: a fake keyword model classifies emails, and data resets when the server restarts.</p>
+    {% endif %}
     <div class="sidebar-foot">
       <a href="/docs">API docs</a>
       <form method="post" action="/logout"><button type="submit">Log out</button></form>
