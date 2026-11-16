@@ -15,6 +15,12 @@ TicketFlow converts unstructured customer support emails into structured, valida
 ### Human Review Queue
 ![TicketFlow Human Review Queue](docs/screenshots/review-queue.png)
 
+## Live demo
+
+[https://ticketflow-5ric.onrender.com](https://ticketflow-5ric.onrender.com) (sign in with the demo key shown on the login page)
+
+This demo runs on Render's free tier, so it sleeps after 15 minutes without traffic (the first request afterwards takes about a minute) and its data resets on every restart. A fake keyword model classifies the emails, so it shows the queue, retry and review workflow, not the accuracy of the real model; the evaluation above used the real model. The demo key is public and the rate limit is shared by all visitors.
+
 ## Features
 
 - **Email processing:** Extracts customer name, order ID, category, urgency, summary and suggested reply from customer emails.
@@ -299,7 +305,7 @@ ticketflow/
 - Provider `Retry-After` headers are not yet handled.
 - Suggested replies are not automatically sent to customers.
 - There is no direct Gmail or other inbox integration.
-- The application has not been deployed publicly.
+- The public demo uses an ephemeral SQLite file (the free tier has no persistent disk) and the fake model. Running the API and worker together in one container is a hosting workaround; locally they run as two services.
 
 ## Author
 
